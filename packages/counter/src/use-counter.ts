@@ -118,7 +118,7 @@ export function useCounter(props: UseCounterProps = {}) {
          * If `min` is set, native input, starts at the `min`.
          * Else, it starts at `step`
          */
-        next = props.min?.toString() ?? parse("0") + step
+        next = parse(step)
       } else {
         next = parse(value) + step
       }
@@ -135,7 +135,7 @@ export function useCounter(props: UseCounterProps = {}) {
 
       // Same thing here. We'll follow native implementation
       if (value === "") {
-        next = props.min?.toString() ?? parse("0") - step
+        next = parse(-step)
       } else {
         next = parse(value) - step
       }
@@ -169,8 +169,8 @@ export function useCounter(props: UseCounterProps = {}) {
    * Common range checks
    */
   const isOutOfRange = valueAsNumber > max || valueAsNumber < min
-  const isAtMax = valueAsNumber == max
-  const isAtMin = valueAsNumber == min
+  const isAtMax = valueAsNumber === max
+  const isAtMin = valueAsNumber === min
 
   return {
     isOutOfRange,
@@ -191,7 +191,7 @@ export function useCounter(props: UseCounterProps = {}) {
 export type UseCounterReturn = ReturnType<typeof useCounter>
 
 function parse(value: StringOrNumber) {
-  return parseFloat(value.toString().replace(/[^\w\.-]+/g, ""))
+  return parseFloat(value.toString().replace(/[^\w.-]+/g, ""))
 }
 
 function getDecimalPlaces(value: number, step: number) {

@@ -1,10 +1,5 @@
-import { useUpdateEffect, useEventListener } from "@chakra-ui/hooks"
-import {
-  focus,
-  getFirstTabbableIn,
-  FocusableElement,
-  isFocusable,
-} from "@chakra-ui/utils"
+import { useEventListener, useUpdateEffect } from "@chakra-ui/hooks"
+import { focus, FocusableElement, isFocusable } from "@chakra-ui/utils"
 import { RefObject, useRef } from "react"
 
 export interface UseFocusOnHideOptions {
@@ -30,7 +25,7 @@ export function useFocusOnHide(
 
   const shouldFocus = autoFocus && !visible && trigger === "click"
 
-  const onPointerDown = (event: MouseEvent) => {
+  const onPointerDown = (event: MouseEvent | TouchEvent) => {
     if (!options.visible) return
     const target = event.target as HTMLElement
 
@@ -55,6 +50,16 @@ export function useFocusOnHide(
     }
   }, [visible])
 
+  useEventListener(
+    "transitionend",
+    () => {
+      if (!visible && focusRef.current && !isFocusableRef.current) {
+        focus(focusRef.current)
+      }
+    },
+    popoverRef.current,
+  )
+
   /**
    * Using updateEffect here to allow effect to run only when
    * `options.visible` changes, not on mount
@@ -68,53 +73,4 @@ export function useFocusOnHide(
       focus(focusRef.current)
     }
   }, [autoFocus, focusRef, visible, popoverRef, shouldFocus])
-}
-
-interface UseFocusOnShowOptions {
-  autoFocus?: boolean
-  visible?: boolean
-  focusRef?: RefObject<FocusableElement>
-  trigger?: "hover" | "click"
-}
-
-/**
- * Popover hook to manage the focus when the popover opens.
- *
- * We either want to focus the popover content itself since it
- * has `tabIndex = -1`, or focus the first interactive element
- * within the popover content.
- */
-export function useFocusOnShow(
-  popoverRef: RefObject<HTMLElement>,
-  options: UseFocusOnShowOptions,
-) {
-  const { visible, autoFocus, focusRef, trigger } = options
-
-  /**
-   * Using updateEffect here to allow effect to run only when
-   * `options.visible` changes, not on mount
-   */
-  useUpdateEffect(() => {
-    if (trigger === "hover") return
-
-    // if `autoFocus` is false, move focus to the `PopoverContent`
-    if (!autoFocus && popoverRef.current) {
-      focus(popoverRef.current)
-      return
-    }
-
-    const shouldFocus = visible && autoFocus
-
-    if (!shouldFocus) return
-
-    if (focusRef?.current) {
-      focus(focusRef.current)
-      return
-    }
-
-    if (popoverRef.current) {
-      const firstTabbable = getFirstTabbableIn(popoverRef.current, true)
-      focus(firstTabbable ?? popoverRef.current)
-    }
-  }, [visible, autoFocus, popoverRef, focusRef])
 }

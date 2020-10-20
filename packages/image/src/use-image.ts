@@ -68,9 +68,7 @@ export function useImage(props: UseImageProps) {
     ignoreFallback,
   } = props
 
-  const [status, setStatus] = useState<Status>(() => {
-    return src ? "loading" : "pending"
-  })
+  const [status, setStatus] = useState<Status>("pending")
 
   useEffect(() => {
     setStatus(src ? "loading" : "pending")
@@ -126,7 +124,7 @@ export function useImage(props: UseImageProps) {
      * If user opts out of the fallback/placeholder
      * logic, let's bail out.
      */
-    if (ignoreFallback) return
+    if (ignoreFallback) return undefined
 
     if (status === "loading") {
       load()

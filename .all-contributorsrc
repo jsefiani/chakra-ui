@@ -1398,6 +1398,24 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "claytonfaria",
+      "name": "Clayton Faria",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/65756578?v=4",
+      "profile": "https://github.com/claytonfaria",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "ellisio",
+      "name": "Andrew Ellis",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/127468?v=4",
+      "profile": "https://github.com/ellisio",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

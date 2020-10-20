@@ -1,6 +1,11 @@
 import { useDisclosure, useEventListener, useId } from "@chakra-ui/hooks"
 import { Placement, usePopper, UsePopperProps } from "@chakra-ui/popper"
-import { callAllHandlers, mergeRefs, PropGetter } from "@chakra-ui/utils"
+import {
+  callAllHandlers,
+  mergeRefs,
+  mergeWith,
+  PropGetter,
+} from "@chakra-ui/utils"
 import { useCallback, useEffect, useRef } from "react"
 
 export interface UseTooltipProps
@@ -145,10 +150,17 @@ export function useTooltip(props: UseTooltipProps = {}) {
     }
   }, [])
 
+  /**
+   * This allows for catching mouseleave events when the tooltip
+   * trigger is disabled. There's currently a known issue in
+   * React regarding the onMouseLeave polyfill.
+   * @see https://github.com/facebook/react/issues/11972
+   */
+  useEventListener("mouseleave", closeWithDelay, ref.current)
+
   const getTriggerProps: PropGetter = (props = {}, _ref = null) => {
     const triggerProps = {
       ...props,
-      onMouseLeave: callAllHandlers(props.onMouseLeave, closeWithDelay),
       onMouseEnter: callAllHandlers(props.onMouseEnter, openWithDelay),
       onClick: callAllHandlers(props.onClick, onClick),
       onMouseDown: callAllHandlers(props.onMouseDown, onMouseDown),
@@ -161,15 +173,24 @@ export function useTooltip(props: UseTooltipProps = {}) {
   }
 
   const getTooltipProps: PropGetter = (props = {}, _ref = null) => {
-    const popperProps = {
+    const tooltipProps = {
+      ref: _ref,
       ...htmlProps,
       ...props,
       id: tooltipId,
       role: "tooltip",
     }
 
-    return popper.getPopperProps(popperProps, _ref)
+    return tooltipProps
   }
+
+  const getTooltipWrapperProps: PropGetter = (props = {}, _ref = null) =>
+    popper.getPopperProps(
+      mergeWith(props, {
+        style: { transformOrigin: popper.transformOrigin },
+      }),
+      _ref,
+    )
 
   return {
     isOpen,
@@ -177,6 +198,7 @@ export function useTooltip(props: UseTooltipProps = {}) {
     hide: closeWithDelay,
     getTriggerProps,
     getTooltipProps,
+    getTooltipWrapperProps,
     transformOrigin: popper.transformOrigin,
     placement: popper.placement,
     getArrowWrapperProps: popper.getArrowWrapperProps,
